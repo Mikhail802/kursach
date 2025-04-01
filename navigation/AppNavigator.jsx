@@ -15,10 +15,14 @@ import FriendsScreen from '../screens/FriendsScreen';
 import AddFriendScreen from '../screens/AddFriendScreen';
 import FriendRequestsScreen from '../screens/FriendRequestsScreen';
 
+
+
+
 const Stack = createStackNavigator();
 
 const AppNavigator = () => {
   const { user, loadingAuth } = useContext(AuthContext);
+  console.log("🔁 Rendering AppNavigator. User:", user);
 
   if (loadingAuth) {
     return (

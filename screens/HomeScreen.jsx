@@ -6,6 +6,9 @@ import {
 import { Bell, ChevronRight } from 'lucide-react-native';
 import { getRooms, createRoom, deleteRoom } from '../services/ApiService';
 
+console.log("🏠 HomeScreen загружен");
+
+
 const HomeScreen = ({ navigation }) => {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,6 +25,11 @@ const HomeScreen = ({ navigation }) => {
     
     setLoading(false);
   };
+
+  useEffect(() => {
+    console.log("🏠 HomeScreen rendered");
+  }, []);
+  
 
   const handleCreateRoom = async () => {
     if (!roomName.trim() || !roomTheme.trim()) {

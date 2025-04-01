@@ -2,7 +2,10 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import HomeScreen from '../screens/HomeScreen';
 import ProfileScreen from '../screens/ProfileScreen';
-import { Home, User, Settings } from 'lucide-react-native';
+import { Home, User} from 'lucide-react-native';
+
+
+
 
 const Tab = createBottomTabNavigator();
 
@@ -17,9 +20,7 @@ const BottomTabNavigator = () => {
             IconComponent = Home;
           } else if (route.name === 'Profile') {
             IconComponent = User;
-          } else if (route.name === 'Settings') {
-            IconComponent = Settings;
-          }
+          } 
 
           return <IconComponent color={color} size={size} />;
         },
