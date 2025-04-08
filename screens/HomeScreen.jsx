@@ -1,15 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import {
-  View, Text, StyleSheet, FlatList, ActivityIndicator,
-  Modal, TextInput, Button, TouchableOpacity
-} from 'react-native';
+import React, { useEffect, useState, useContext } from 'react';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, Modal, TextInput, Button, TouchableOpacity } from 'react-native';
 import { Bell, ChevronRight } from 'lucide-react-native';
-import { getRooms, createRoom, deleteRoom } from '../services/ApiService';
-
-console.log("🏠 HomeScreen загружен");
-
+import { getRooms, createRoom } from '../services/ApiService';
+import { AuthContext } from '../context/AuthContext';
 
 const HomeScreen = ({ navigation }) => {
+  const { user } = useContext(AuthContext);
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
@@ -17,19 +13,16 @@ const HomeScreen = ({ navigation }) => {
   const [roomTheme, setRoomTheme] = useState('');
 
   const fetchRooms = async () => {
+    if (!user?.id) return;
     setLoading(true);
-    const result = await getRooms();
-    console.log('Результат getRooms:', result);
+    const result = await getRooms(user.id); // ✅ передаём ownerId
     setRooms(result || []);
-
-    
     setLoading(false);
   };
 
   useEffect(() => {
-    console.log("🏠 HomeScreen rendered");
-  }, []);
-  
+    fetchRooms();
+  }, [user]);
 
   const handleCreateRoom = async () => {
     if (!roomName.trim() || !roomTheme.trim()) {
@@ -37,7 +30,7 @@ const HomeScreen = ({ navigation }) => {
       return;
     }
 
-    const newRoom = await createRoom(roomName, roomTheme);
+    const newRoom = await createRoom(roomName, roomTheme, user.id); // ✅ передаём ownerId
     if (newRoom) {
       fetchRooms();
       setRoomName('');
@@ -46,16 +39,9 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
-  useEffect(() => {
-    fetchRooms();
-  }, []);
-
   const renderItem = ({ item }) => (
     <TouchableOpacity
-      onPress={() => navigation.navigate('Room', {
-        roomId: item.id,
-        roomName: item.name
-      })}
+      onPress={() => navigation.navigate('Room', { roomId: item.id, roomName: item.name })}
       style={styles.roomItem}
     >
       <View>
@@ -70,9 +56,10 @@ const HomeScreen = ({ navigation }) => {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Главная</Text>
-        <TouchableOpacity>
-          <Bell size={24} color="#000" />
-        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('Invites')}>
+  <Bell size={24} color="#000" />
+</TouchableOpacity>
+
       </View>
 
       <TouchableOpacity style={styles.createRoomButton} onPress={() => setModalVisible(true)}>

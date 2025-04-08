@@ -1,11 +1,9 @@
 import { API_URL } from './config';
 
-export const getRooms = async () => {
+export const getRooms = async (userId) => {
   try {
-    const response = await fetch(`${API_URL}/rooms`);
-    if (!response.ok) {
-      throw new Error(`Ошибка: ${response.status}`);
-    }
+    const response = await fetch(`${API_URL}/rooms?userId=${userId}`);
+    if (!response.ok) throw new Error(`Ошибка: ${response.status}`);
     const data = await response.json();
     return data.rooms || [];
   } catch (error) {
@@ -14,25 +12,23 @@ export const getRooms = async () => {
   }
 };
 
-export const createRoom = async (name, theme) => {
-    try {
-      const response = await fetch(`${API_URL}/rooms`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, theme }),
-      });
-  
-      if (!response.ok) {
-        throw new Error(`Ошибка при создании комнаты: ${response.status}`);
-      }
-  
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error('Ошибка создания комнаты:', error);
-      return null;
-    }
-  };
+
+
+export const createRoom = async (name, theme, ownerId) => {
+  try {
+    const response = await fetch(`${API_URL}/rooms`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, theme, owner_id: ownerId }),
+    });
+
+    const data = await response.json();
+    return data.data?.room || null;
+  } catch (error) {
+    console.error('Ошибка создания комнаты:', error);
+    return null;
+  }
+};
   
  export const getColumns = async (roomId) => {
     try {
@@ -142,14 +138,14 @@ export const createRoom = async (name, theme) => {
   };
   
 
-  export const loginUser = async (email, password) => {
+  export const loginUser = async (identifier, password) => {
     try {
       console.log('📤 Отправляем POST /users/login');
   
       const response = await fetch(`${API_URL}/users/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ identifier, password }), // ⬅️ тут ключевой момент
       });
   
       const text = await response.text();
@@ -172,6 +168,7 @@ export const createRoom = async (name, theme) => {
       return null;
     }
   };
+  
   
   
   export const registerUser = async (name, username, email, password) => {

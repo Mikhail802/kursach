@@ -1,12 +1,11 @@
-
 import React, { useEffect, useState, useContext } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { AuthContext } from '../context/AuthContext';
 import { API_URL } from '../services/config';
+import { ChevronLeft } from 'lucide-react-native';
 
 const FriendsScreen = ({ navigation }) => {
   const { user } = useContext(AuthContext);
-  console.log("👤 user из контекста:", user);
   const [friends, setFriends] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -24,41 +23,44 @@ const FriendsScreen = ({ navigation }) => {
     }
   };
   
+
   useEffect(() => {
-    console.log("🚀 useEffect вызван для загрузки друзей");
     fetchFriends();
   }, []);
 
   const renderFriend = ({ item }) => (
     <View style={styles.friendItem}>
       <Text style={styles.name}>{item.name}</Text>
-      <Text style={styles.username}>@{item.username}</Text>
+      <Text style={styles.username}>@{item.Username}</Text>
     </View>
   );
-  
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Мои друзья</Text>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <ChevronLeft size={24} color="#000" />
+        </TouchableOpacity>
+        <Text style={styles.title}>Мои друзья</Text>
+      </View>
 
       {loading ? (
         <ActivityIndicator size="large" />
       ) : (
         <FlatList
-   data={friends}
-   keyExtractor={(item, index) => item.id || index.toString()}
-   renderItem={renderFriend}
-   ListEmptyComponent={<Text>У вас пока нет друзей.</Text>}
-  />
-
+          data={friends}
+          keyExtractor={(item, index) => item.id || index.toString()}
+          renderItem={renderFriend}
+          ListEmptyComponent={<Text>У вас пока нет друзей.</Text>}
+        />
       )}
 
       <View style={styles.actions}>
         <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('AddFriend')}>
-          <Text style={styles.buttonText}>➕ Добавить друга</Text>
+          <Text style={styles.buttonText}>Добавить друга</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('FriendRequests')}>
-          <Text style={styles.buttonText}>📥 Заявки в друзья</Text>
+          <Text style={styles.buttonText}>Заявки в друзья</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -67,17 +69,44 @@ const FriendsScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20 },
-  title: { fontSize: 22, fontWeight: 'bold', marginBottom: 10 },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    flex: 1,
+    textAlign: 'center',
+  },
   friendItem: {
-    paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#ccc',
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    marginBottom: 10,
   },
   name: { fontSize: 16, fontWeight: 'bold' },
   username: { fontSize: 14, color: 'gray' },
   actions: { marginTop: 20 },
   button: {
-    backgroundColor: '#007bff', padding: 12, borderRadius: 8, marginVertical: 6,
+    backgroundColor: '#4CAF50',  // Более яркий зелёный цвет
+    padding: 14,
+    borderRadius: 12,
+    marginVertical: 8,
+    shadowColor: '#000',  // Добавим тень
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 6,
   },
-  buttonText: { color: '#fff', textAlign: 'center', fontWeight: 'bold' },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
 });
 
 export default FriendsScreen;

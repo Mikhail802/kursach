@@ -14,6 +14,8 @@ import NewPasswordScreen from '../screens/NewPasswordScreen';
 import FriendsScreen from '../screens/FriendsScreen';
 import AddFriendScreen from '../screens/AddFriendScreen';
 import FriendRequestsScreen from '../screens/FriendRequestsScreen';
+import InvitesScreen from '../screens/InvitesScreen';
+
 
 
 
@@ -42,6 +44,8 @@ const AppNavigator = () => {
           <Stack.Screen name="Friends" component={FriendsScreen} />
           <Stack.Screen name="FriendRequests" component={FriendRequestsScreen} />
           <Stack.Screen name="AddFriend" component={AddFriendScreen} />
+          <Stack.Screen name="Invites" component={InvitesScreen} />
+
           
         </>
       ) : (

@@ -1,14 +1,23 @@
-
 import React, { useState } from "react";
-import { View, TextInput, Button, Text, StyleSheet } from "react-native";
+import {
+  View, TextInput, Text, StyleSheet, TouchableOpacity, Alert
+} from "react-native";
 import { API_URL } from '../services/config';
 import { registerUser } from '../services/ApiService';
+import { Mail, ArrowLeft } from 'lucide-react-native';
 
 const VerifyEmailScreen = ({ route, navigation }) => {
   const { email, password, name, username, from } = route.params;
-  console.log("🧾 Получены данные из params:", route.params);
-  const [code, setCode] = useState("");
+  const [code, setCode] = useState('');
+  const [error, setError] = useState('');
+
   const handleVerify = async () => {
+    if (!code.trim()) {
+      setError('Введите код подтверждения');
+      return;
+    }
+    setError('');
+
     const res = await fetch(`${API_URL}/email/verify-code`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -19,41 +28,69 @@ const VerifyEmailScreen = ({ route, navigation }) => {
       if (from === "register") {
         const registerRes = await registerUser(name, username, email, password);
         if (registerRes?.id) {
-          alert("Регистрация завершена!");
+          Alert.alert("Успех", "Регистрация завершена!");
           navigation.navigate("Login");
         } else {
-          alert("Ошибка при создании аккаунта");
+          Alert.alert("Ошибка", "Не удалось создать аккаунт");
         }
       } else if (from === "recover") {
-        alert("Email подтвержден. Установите новый пароль.");
+        // убран Alert
         navigation.navigate("NewPassword", { email });
-      }      
+      }
     } else {
-      alert("Неверный код");
+      Alert.alert("Ошибка", "Неверный код подтверждения");
     }
   };
 
- return (
+  return (
     <View style={styles.container}>
+      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <ArrowLeft size={24} color="#000" />
+      </TouchableOpacity>
+
       <Text style={styles.title}>Подтверждение Email</Text>
       <Text style={styles.subtitle}>Введите код, отправленный на {email}</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Код подтверждения"
-        value={code}
-        onChangeText={setCode}
-        keyboardType="numeric"
-      />
-      <Button title="Подтвердить" onPress={handleVerify} />
+
+      <View style={styles.inputContainer}>
+        <Mail size={18} color="#888" style={styles.icon} />
+        <TextInput
+          style={styles.input}
+          placeholder="Код подтверждения"
+          value={code}
+          onChangeText={setCode}
+          keyboardType="numeric"
+        />
+      </View>
+      <Text style={[styles.error, !error && styles.errorPlaceholder]}>
+        {error || ' '}
+      </Text>
+
+      <TouchableOpacity style={styles.verifyButton} onPress={handleVerify}>
+        <Text style={styles.verifyButtonText}>Подтвердить</Text>
+      </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 20 },
-  title: { fontSize: 24, fontWeight: 'bold', textAlign: 'center', marginBottom: 10 },
-  subtitle: { fontSize: 16, textAlign: 'center', marginBottom: 20 },
-  input: { height: 45, borderColor: '#aaa', borderWidth: 1, borderRadius: 8, paddingHorizontal: 12, marginBottom: 15 },
+  container: { flex: 1, backgroundColor: '#F9F9F9', justifyContent: 'center', padding: 20 },
+  backButton: { position: 'absolute', top: 50, left: 20 },
+  title: { fontSize: 26, fontWeight: 'bold', textAlign: 'center', marginBottom: 10, color: '#333' },
+  subtitle: { fontSize: 16, textAlign: 'center', marginBottom: 20, color: '#555' },
+  inputContainer: {
+    flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff',
+    borderRadius: 12, paddingHorizontal: 12, marginBottom: 5,
+    shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 5, elevation: 3,
+  },
+  icon: { marginRight: 8 },
+  input: { flex: 1, height: 48, fontSize: 16, color: '#333' },
+  error: { minHeight: 18, fontSize: 13, color: '#ff4d4f', marginBottom: 10 },
+  errorPlaceholder: { color: 'transparent' },
+  verifyButton: {
+    backgroundColor: '#4CAF50', borderRadius: 12,
+    paddingVertical: 14, marginTop: 10, alignItems: 'center', elevation: 2,
+  },
+  verifyButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
 });
 
 export default VerifyEmailScreen;
